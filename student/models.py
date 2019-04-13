@@ -1,58 +1,62 @@
 import uuid
 from django.db import models
+from django.contrib.auth import User
 import datetime
-from django.contrib.auth import User 
 
-groups_Choice = (
-    ("STAFF","STAFF"),
-    ("STUDENT","STUDENT")
+
+groups_choices = (
+    ("STAFF", "STAFF"),
+    ("STUDENT", "STUDENT")
 )
+
 
 class Students(models.User):
 
-    username = models.CharField(max_lenght = 50)
-    email = models.EmailField(max_length=254)
-    password = models.CharField( max_length=50)
+    username = models.CharField(max_length = 50)
+    email = models.CharField(max_length = 254)
+    password = models.CharField(max_length = 50)
     groups = models.CharField(
         max_length = 10,
-        choices = groups_Choice,
+        choices =  groups_choices,
         )
     is_staff = False
-    date_joined = models.DateField(auto_now=True, auto_now_add=False)   
+    date_joined = models.DateField(auto_now = True, auto_now_add = False)
+
+
 
 class Teacher(models.Model):
-    dept = models.CharField(max_length=50)
-    t_first_name =  models.CharField(max_length=30)
-    t_last_name = models.CharField(max_length=30)
+    dept = models.CharField(max_length = 50)
+    t_first_name = models.CharField(max_length = 30)
+    t_last_name = models.CharField(max_length = 30)
+    teacher_id = models.IntegerField(primary_key = True, unique = True)
 
-class subject(models.Model):
-    sname = models.CharField(max_length=30)
-    teac_id = models.ForeignKey(Teacher)
+
+
+class Subject(models.Model):
+    sname = models.CharField(max_length = 30)
     subject_id = models.AutoField(primary_key = True)
+    teacher_id = models.ForeignKey(Teacher)
+    teacher = models.ManyToManyField(Teacher)  # Defining the 'teaches' relation here.
 
-    
-class students(models.Model):
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
-    course = models.CharField(max_lenght=40)
-    student_id = models.CharField(max_length = 30)
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False) 
+
+
+class student(models.Model):
+    first_name = models.CharField(max_length = 30)
+    last_name = models.CharField(max_length = 30)
+    course = models.CharField(max_length = 40)
     semester = models.IntegerField()
-    # atted_id = models.ForeignKey(attendance)
-    subject_id = models.ForeignKey(subject)
-
-  
-
-
-
-    # teacher_dept = models.ManyToManyField("app.Model", verbose_name=_(""))
-  
-class attendance(models.Model):
-    attendance_id = models.AutoField(primary_key =True)
-    date = models.DateField(auto_now=True, auto_now_add=False)
-    status = models.CharField(max_length=2)
-    stud_id = models.ForeignKey(students, on_delete=models.CASCADE)
-    subj_id = models.ForeignKey(subject, on_delete=models.CASCADE)
-    # teach_id = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    student_id = models.IntegerField()
+    uuid = models.UUIDField(primary_key = True, default = uuid.uuid4, ediatble = False)
+    subject_id = models.ForeignKey(Subject)
+    subject = models.ManyToManyField(Subject)   # Defining the 'studied' relation here.
 
 
+
+class Attendance(models.Model):
+    attendence_id = models.AutoField(primary_key = True)
+    status = models.CharField(max_length = 2)
+    date = models.DateField(auto_now = True, auto_now_add = False)
+    student_id = models.ForeignKey(student, on_delete = models.CASCADE)
+    subject_id = models.ForeignKey(Subject, on_delete = models.CASCADE)
+    #student = models.OneToOneField(student)  # Defining 'belongs' relationship since one studetn has only one attendance
+    subject = models.ManyToManyField(Subject)
