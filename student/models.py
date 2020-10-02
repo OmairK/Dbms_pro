@@ -15,10 +15,7 @@ class Students(models.User):
     username = models.CharField(max_length = 50)
     email = models.CharField(max_length = 254)
     password = models.CharField(max_length = 50)
-    groups = models.CharField(
-        max_length = 10,
-        choices =  groups_choices,
-        )
+    groups = models.CharField(max_length = 10, choices =  groups_choices)
     is_staff = False
     date_joined = models.DateField(auto_now = True, auto_now_add = False)
 
@@ -58,5 +55,4 @@ class Attendance(models.Model):
     date = models.DateField(auto_now = True, auto_now_add = False)
     student_id = models.ForeignKey(student, on_delete = models.CASCADE)
     subject_id = models.ForeignKey(Subject, on_delete = models.CASCADE)
-    #student = models.OneToOneField(student)  # Defining 'belongs' relationship since one studetn has only one attendance
     subject = models.ManyToManyField(Subject)
